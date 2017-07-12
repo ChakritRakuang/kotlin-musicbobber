@@ -27,18 +27,10 @@ import java.lang.ref.WeakReference
 import java.util.Random
 import java.util.WeakHashMap
 
-/**
- * Audio widget implementation.
- */
 class AudioWidget private constructor(builder : Builder) {
-    /**
-     * Play/pause button view.
-     */
+
     private val playPauseButton : PlayPauseButton
 
-    /**
-     * Expanded widget style view.
-     */
     private val expandCollapseWidget : ExpandCollapseWidget
 
     /**
@@ -794,7 +786,7 @@ class AudioWidget private constructor(builder : Builder) {
     /**
      * Builder class for [AudioWidget].
      */
-    class Builder(private val context : Context) {
+    class Builder(internal val context : Context) {
 
         @ColorInt
         private var darkColor : Int = 0

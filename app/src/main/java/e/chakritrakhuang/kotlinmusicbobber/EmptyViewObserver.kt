@@ -23,8 +23,8 @@ internal class EmptyViewObserver(view : View) : RecyclerView.AdapterDataObserver
      */
     fun bind(recyclerView : RecyclerView) {
         unbind()
-        this.recyclerViewWeakReference = WeakReference<RecyclerView>(recyclerView)
-        recyclerView.getAdapter().registerAdapterDataObserver(this)
+        this.recyclerViewWeakReference = WeakReference(recyclerView)
+        recyclerView.adapter.registerAdapterDataObserver(this)
     }
 
     fun unbind() {
@@ -32,32 +32,32 @@ internal class EmptyViewObserver(view : View) : RecyclerView.AdapterDataObserver
             return
         val recyclerView = recyclerViewWeakReference !!.get()
         if (recyclerView != null) {
-            recyclerView !!.getAdapter().unregisterAdapterDataObserver(this)
+            recyclerView.adapter.unregisterAdapterDataObserver(this)
             recyclerViewWeakReference !!.clear()
         }
     }
 
-    fun onChanged() {
+    override fun onChanged() {
         super.onChanged()
         somethingChanged()
     }
 
-    fun onItemRangeChanged(positionStart : Int , itemCount : Int) {
+    override fun onItemRangeChanged(positionStart : Int , itemCount : Int) {
         super.onItemRangeChanged(positionStart , itemCount)
         somethingChanged()
     }
 
-    fun onItemRangeChanged(positionStart : Int , itemCount : Int , payload : Any) {
+    override fun onItemRangeChanged(positionStart : Int , itemCount : Int , payload : Any?) {
         super.onItemRangeChanged(positionStart , itemCount , payload)
         somethingChanged()
     }
 
-    fun onItemRangeInserted(positionStart : Int , itemCount : Int) {
+    override fun onItemRangeInserted(positionStart : Int , itemCount : Int) {
         super.onItemRangeInserted(positionStart , itemCount)
         somethingChanged()
     }
 
-    fun onItemRangeRemoved(positionStart : Int , itemCount : Int) {
+    override fun onItemRangeRemoved(positionStart : Int , itemCount : Int) {
         super.onItemRangeRemoved(positionStart , itemCount)
         somethingChanged()
     }
@@ -66,7 +66,7 @@ internal class EmptyViewObserver(view : View) : RecyclerView.AdapterDataObserver
         val view = viewWeakReference.get()
         val recyclerView = recyclerViewWeakReference !!.get()
         if (view != null && recyclerView != null) {
-            if (recyclerView !!.getAdapter().getItemCount() === 0) {
+            if (recyclerView.adapter.itemCount == 0) {
                 view.visibility = View.VISIBLE
             } else {
                 view.visibility = View.GONE

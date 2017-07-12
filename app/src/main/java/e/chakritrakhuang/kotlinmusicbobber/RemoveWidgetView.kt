@@ -1,5 +1,3 @@
-@file:Suppress("NAME_SHADOWING")
-
 package e.chakritrakhuang.kotlinmusicbobber
 
 import android.animation.ValueAnimator

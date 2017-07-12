@@ -11,10 +11,6 @@ import android.widget.Filter
 
 import java.util.Collections
 
-/**
- * Base filter that can be easily integrated with [BaseRecyclerViewAdapter].<br></br><br></br>
- * For iterating through adapter's data use [.getNonFilteredCount] and [.getNonFilteredItem].
- */
 internal abstract class BaseFilter<T> : Filter {
 
     private var adapter : FilterableAdapter<T>? = null
@@ -63,7 +59,7 @@ internal abstract class BaseFilter<T> : Filter {
             }
         }
         adapterDataObserver = object : RecyclerView.AdapterDataObserver() {
-            fun onChanged() {
+            override fun onChanged() {
                 super.onChanged()
                 if (! isFiltered)
                     return
@@ -83,13 +79,6 @@ internal abstract class BaseFilter<T> : Filter {
         return performFilteringImpl(constraint)
     }
 
-    /**
-     * Perform filtering as always. Returned [FilterResults] object must be non-null.
-     * @param constraint the constraint used to filter the data
-     * @return filtering results. <br></br>
-     * You can set [FilterResults.count] to -1 to specify that no filtering was applied.<br></br>
-     * [FilterResults.values] must be instance of [List].
-     */
     protected abstract fun performFilteringImpl(constraint : CharSequence?) : Filter.FilterResults
 
     @Throws(AssertionError::class)
@@ -104,7 +93,7 @@ internal abstract class BaseFilter<T> : Filter {
 
     @Throws(ArrayIndexOutOfBoundsException::class)
     fun getItem(position : Int) : T {
-        return (lastResults !!.values as List<T>)[position]
+        return (lastResults !!.values as List<*>)[position] as T
     }
 
     val count : Int

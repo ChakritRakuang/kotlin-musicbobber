@@ -41,8 +41,9 @@ internal abstract class BaseRecyclerViewAdapter<TData , TViewHolder : RecyclerVi
         }
     }
 
-    val itemCount : Int
-        get() = if (filter != null && filter !!.isFiltered) filter !!.count else data.size
+    override fun getItemCount() : Int {
+        return if (filter != null && filter !!.isFiltered) filter !!.count else data.size
+    }
 
     @Throws(ArrayIndexOutOfBoundsException::class)
     fun getItem(position : Int) : TData {

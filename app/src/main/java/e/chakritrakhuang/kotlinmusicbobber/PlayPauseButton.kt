@@ -11,11 +11,17 @@ import android.graphics.RectF
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.os.AsyncTask
+import android.support.v7.graphics.Palette
 import android.view.View
 import android.view.animation.LinearInterpolator
 import android.widget.ImageView
-import java.util.*
 
+import java.util.HashMap
+import java.util.Random
+
+/**
+ * Collapsed state view.
+ */
 @SuppressLint("ViewConstructor")
 internal class PlayPauseButton(configuration : Configuration) : ImageView(configuration.context()) , PlaybackState.PlaybackStateListener {
 
@@ -102,9 +108,9 @@ internal class PlayPauseButton(configuration : Configuration) : ImageView(config
             buttonSize = animation.getAnimatedValue()
             invalidate()
         }
-        this.touchDownAnimator = ValueAnimator.ofFloat(1F , 0.9f).setDuration(Configuration.TOUCH_ANIMATION_DURATION)
+        this.touchDownAnimator = ValueAnimator.ofFloat(1 , 0.9f).setDuration(Configuration.TOUCH_ANIMATION_DURATION)
         this.touchDownAnimator.addUpdateListener(listener)
-        this.touchUpAnimator = ValueAnimator.ofFloat(0.9f , 1F).setDuration(Configuration.TOUCH_ANIMATION_DURATION)
+        this.touchUpAnimator = ValueAnimator.ofFloat(0.9f , 1).setDuration(Configuration.TOUCH_ANIMATION_DURATION)
         this.touchUpAnimator.addUpdateListener(listener)
         this.bubblesAnimator = ValueAnimator.ofInt(0 , ANIMATION_TIME_L.toInt()).setDuration(ANIMATION_TIME_L)
         this.bubblesAnimator.interpolator = LinearInterpolator()
@@ -330,14 +336,14 @@ internal class PlayPauseButton(configuration : Configuration) : ImageView(config
                 if (lastPaletteAsyncTask != null && ! lastPaletteAsyncTask !!.isCancelled) {
                     lastPaletteAsyncTask !!.cancel(true)
                 }
-                lastPaletteAsyncTask = Palette.from(bitmap).generate({ palette ->
+                lastPaletteAsyncTask = Palette.from(bitmap).generate { palette ->
                     val dominantColor = palette.getDominantColor(Integer.MAX_VALUE)
                     if (dominantColor != Integer.MAX_VALUE) {
                         Color.colorToHSV(dominantColor , hsvArray)
                         isNeedToFillAlbumCoverMap.put(albumCover !!.hashCode() , hsvArray[2] > 0.65f)
                         postInvalidate()
                     }
-                })
+                }
             }
         }
         postInvalidate()

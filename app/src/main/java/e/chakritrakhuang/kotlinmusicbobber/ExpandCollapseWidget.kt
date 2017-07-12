@@ -11,18 +11,15 @@ import android.graphics.Rect
 import android.graphics.RectF
 import android.graphics.drawable.Drawable
 import android.util.Log
+import android.view.View
 import android.view.animation.Interpolator
 import android.view.animation.LinearInterpolator
 import android.widget.ImageView
 
 import java.util.Random
 
-/**
- * Expanded state view.
- */
 @SuppressLint("ViewConstructor")
 internal class ExpandCollapseWidget(configuration : Configuration) : ImageView(configuration.context()) , PlaybackState.PlaybackStateListener {
-
 
     private val paint : Paint
     private val radius : Float
@@ -206,16 +203,16 @@ internal class ExpandCollapseWidget(configuration : Configuration) : ImageView(c
             rect.set(l , t , r , b)
             invalidate(rect)
         }
-        touchDownAnimator = ValueAnimator.ofFloat(1 , 0.9f).setDuration(Configuration.TOUCH_ANIMATION_DURATION)
+        touchDownAnimator = ValueAnimator.ofFloat(1F , 0.9f).setDuration(Configuration.TOUCH_ANIMATION_DURATION)
         touchDownAnimator.addUpdateListener(listener)
         touchUpAnimator = ValueAnimator.ofFloat(0.9f , 1f).setDuration(Configuration.TOUCH_ANIMATION_DURATION)
         touchUpAnimator.addUpdateListener(listener)
-        bubblesTouchAnimator = ValueAnimator.ofFloat(0 , EXPAND_BUBBLES_END_F - EXPAND_BUBBLES_START_F)
+        bubblesTouchAnimator = ValueAnimator.ofFloat(0F , EXPAND_BUBBLES_END_F - EXPAND_BUBBLES_START_F)
                 .setDuration((EXPAND_BUBBLES_END_F - EXPAND_BUBBLES_START_F).toLong())
         bubblesTouchAnimator.interpolator = interpolator
         bubblesTouchAnimator.addUpdateListener { animation ->
             bubblesTime = animation.animatedFraction
-            bubblesPaint.alpha = DrawableUtils.customFunction(bubblesTime , 0 , 0 , 255 , 0.33f , 255 , 0.66f , 0 , 1f).toInt()
+            bubblesPaint.alpha = DrawableUtils.customFunction(bubblesTime , 0F , 0F , 255F , 0.33f , 255F , 0.66f , 0F , 1f).toInt()
             invalidate()
         }
         bubblesTouchAnimator.addListener(object : AnimatorListenerAdapter() {
@@ -488,7 +485,7 @@ internal class ExpandCollapseWidget(configuration : Configuration) : ImageView(c
                 }
             }
             else -> {
-                Log.w(ExpandCollapseWidget::class.java !!.getSimpleName() , "Unknown index: " + index)
+                Log.w(ExpandCollapseWidget::class.java.simpleName , "Unknown index: " + index)
             }
         }
     }
@@ -524,7 +521,7 @@ internal class ExpandCollapseWidget(configuration : Configuration) : ImageView(c
                 }
             }
             else -> {
-                Log.w(ExpandCollapseWidget::class.java !!.getSimpleName() , "Unknown index: " + index)
+                Log.w(ExpandCollapseWidget::class.java.simpleName , "Unknown index: " + index)
             }
         }
     }

@@ -59,7 +59,6 @@ class MusicService : Service() , MediaPlayer.OnPreparedListener , MediaPlayer.On
         cropCircleTransformation = CropCircleTransformation(this)
     }
 
-    @SuppressLint("ObsoleteSdkInt")
     override fun onStartCommand(intent : Intent? , flags : Int , startId : Int) : Int {
         if (intent != null && intent.action != null) {
             when (intent.action) {
@@ -181,7 +180,7 @@ class MusicService : Service() , MediaPlayer.OnPreparedListener , MediaPlayer.On
                 .centerCrop()
                 .transform(cropCircleTransformation)
                 .into(object : SimpleTarget<Bitmap>() {
-                    fun onResourceReady(resource : Bitmap , glideAnimation : GlideAnimation<in Bitmap>) {
+                    override fun onResourceReady(resource : Bitmap , glideAnimation : GlideAnimation<in Bitmap>) {
                         if (audioWidget != null) {
                             audioWidget !!.controller().albumCoverBitmap(resource)
                         }
@@ -332,13 +331,13 @@ class MusicService : Service() , MediaPlayer.OnPreparedListener , MediaPlayer.On
         private var tracks : Array<MusicItem>? = null
 
 
-        fun setTracks(context : Context , tracks : Array<MusicItem>) {
+        internal fun setTracks(context : Context , tracks : Array<MusicItem>) {
             val intent = Intent(ACTION_SET_TRACKS , null , context , MusicService::class.java)
             MusicService.tracks = tracks
             context.startService(intent)
         }
 
-        fun playTrack(context : Context , item : MusicItem) {
+        internal fun playTrack(context : Context , item : MusicItem) {
             val intent = Intent(ACTION_PLAY_TRACKS , null , context , MusicService::class.java)
             intent.putExtra(EXTRA_SELECT_TRACK , item)
             context.startService(intent)

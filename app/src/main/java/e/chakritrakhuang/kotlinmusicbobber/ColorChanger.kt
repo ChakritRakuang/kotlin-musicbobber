@@ -2,20 +2,11 @@ package e.chakritrakhuang.kotlinmusicbobber
 
 import android.graphics.Color
 
-/**
- * Helper class for changing color.
- */
 internal class ColorChanger {
 
-    private val fromColorHsv : FloatArray
-    private val toColorHsv : FloatArray
-    private val resultColorHsv : FloatArray
-
-    init {
-        fromColorHsv = FloatArray(3)
-        toColorHsv = FloatArray(3)
-        resultColorHsv = FloatArray(3)
-    }
+    private val fromColorHsv : FloatArray = FloatArray(3)
+    private val toColorHsv : FloatArray = FloatArray(3)
+    private val resultColorHsv : FloatArray = FloatArray(3)
 
     fun fromColor(fromColor : Int) : ColorChanger {
         Color.colorToHSV(fromColor , fromColorHsv)

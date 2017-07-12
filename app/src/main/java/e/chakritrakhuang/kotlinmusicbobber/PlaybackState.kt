@@ -2,6 +2,9 @@ package e.chakritrakhuang.kotlinmusicbobber
 
 import java.util.HashSet
 
+/**
+ * Helper class for managing playback state.
+ */
 internal class PlaybackState {
 
     private var state = Configuration.STATE_STOPPED

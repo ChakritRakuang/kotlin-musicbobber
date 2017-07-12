@@ -6,7 +6,6 @@ import android.animation.FloatEvaluator
 import android.animation.IntEvaluator
 import android.animation.PropertyValuesHolder
 import android.animation.ValueAnimator
-import android.annotation.SuppressLint
 import android.content.Context
 import android.os.SystemClock
 import android.view.GestureDetector
@@ -17,6 +16,9 @@ import android.view.animation.DecelerateInterpolator
 import android.view.animation.Interpolator
 import android.view.animation.OvershootInterpolator
 
+/**
+ * Touch detector for views.
+ */
 internal class TouchManager(private val view : View , private val boundsChecker : BoundsChecker) : View.OnTouchListener {
     private val windowManager : WindowManager
     private val stickyEdgeAnimator : StickyEdgeAnimator
@@ -32,7 +34,7 @@ internal class TouchManager(private val view : View , private val boundsChecker 
     private var touchCanceled : Boolean = false
 
     init {
-        this.gestureDetector = GestureDetector()
+        this.gestureDetector = GestureDetector(gestureListener = GestureListener())
         gestureDetector.setIsLongpressEnabled(true)
         this.view.setOnTouchListener(this)
         val context = view.context.applicationContext
@@ -43,7 +45,9 @@ internal class TouchManager(private val view : View , private val boundsChecker 
         velocityAnimator = FlingGestureAnimator()
     }
 
-    private fun GestureDetector() : GestureDetector {}
+    private fun GestureDetector(gestureListener : GestureListener) : GestureDetector {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
 
     fun screenWidth(screenWidth : Int) : TouchManager {
         this.screenWidth = screenWidth
@@ -60,7 +64,6 @@ internal class TouchManager(private val view : View , private val boundsChecker 
         return this
     }
 
-    @SuppressLint("ClickableViewAccessibility")
     override fun onTouch(v : View , event : MotionEvent) : Boolean {
         val res = (! touchCanceled || event.action == MotionEvent.ACTION_UP) && gestureDetector.onTouchEvent(event)
         if (event.action == MotionEvent.ACTION_DOWN) {
@@ -75,7 +78,7 @@ internal class TouchManager(private val view : View , private val boundsChecker 
                 gestureListener !!.onMove(event)
             }
         } else if (event.action == MotionEvent.ACTION_OUTSIDE) {
-            gestureListener !!.onTouchOutsideEvent(event)
+            gestureListener !!.onTouchOutsideEvent()
             touchCanceled = false
         } else if (event.action == MotionEvent.ACTION_CANCEL) {
             touchCanceled = true
@@ -277,7 +280,7 @@ internal class TouchManager(private val view : View , private val boundsChecker 
             return true
         }
 
-        fun onMove(e2 : MotionEvent) {
+        internal fun onMove(e2 : MotionEvent) {
             if (lastRawX != null && lastRawY != null) {
                 val diff = e2.eventTime - lastEventTime
                 val dt = if (diff == 0) 0 else 1000f / diff
@@ -291,7 +294,7 @@ internal class TouchManager(private val view : View , private val boundsChecker 
             lastEventTime = e2.eventTime
         }
 
-        fun onUpEvent(e : MotionEvent) {
+        internal fun onUpEvent(e : MotionEvent) {
             if (callback != null) {
                 callback !!.onReleased(e.x , e.y)
             }
@@ -305,7 +308,7 @@ internal class TouchManager(private val view : View , private val boundsChecker 
             }
         }
 
-        fun onTouchOutsideEvent(e : MotionEvent) {
+        internal fun onTouchOutsideEvent() {
             if (callback != null) {
                 callback !!.onTouchOutside()
             }
@@ -381,8 +384,8 @@ internal class TouchManager(private val view : View , private val boundsChecker 
 
             newY = params !!.y + dy
 
-            dxHolder.setFloatValues(params !!.x.toFloat() , newX)
-            dyHolder.setFloatValues(params !!.y.toFloat() , newY)
+            dxHolder.setFloatValues(params !!.x , newX)
+            dyHolder.setFloatValues(params !!.y , newY)
 
             flingGestureAnimator.start()
         }
@@ -439,7 +442,7 @@ internal class TouchManager(private val view : View , private val boundsChecker 
             })
         }
 
-        fun animate(boundsChecker : BoundsChecker) {
+        internal fun animate(boundsChecker : BoundsChecker) {
             animate(boundsChecker , null)
         }
 
@@ -484,7 +487,7 @@ internal class TouchManager(private val view : View , private val boundsChecker 
             edgeAnimator.start()
         }
 
-        internal val isAnimating : Boolean
+        val isAnimating : Boolean
             get() = edgeAnimator.isRunning
 
         companion object {

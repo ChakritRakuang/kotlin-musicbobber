@@ -6,39 +6,14 @@ import android.view.SoundEffectConstants
 import android.view.View
 
 internal class ItemClickSupport private constructor(private val mRecyclerView : RecyclerView) {
-    /**
-     * Interface definition for a callback to be invoked when an item in the
-     * RecyclerView has been clicked.
-     */
+
     interface OnItemClickListener {
-        /**
-         * Callback method to be invoked when an item in the RecyclerView
-         * has been clicked.
-         *
-         * @param parent The RecyclerView where the click happened.
-         * @param view The view within the RecyclerView that was clicked
-         * @param position The position of the view in the adapter.
-         * @param id The row id of the item that was clicked.
-         */
+
         fun onItemClick(parent : RecyclerView , view : View , position : Int , id : Long)
     }
 
-    /**
-     * Interface definition for a callback to be invoked when an item in the
-     * RecyclerView has been clicked and held.
-     */
     interface OnItemLongClickListener {
-        /**
-         * Callback method to be invoked when an item in the RecyclerView
-         * has been clicked and held.
-         *
-         * @param parent The RecyclerView where the click happened
-         * @param view The view within the RecyclerView that was clicked
-         * @param position The position of the view in the list
-         * @param id The row id of the item that was clicked
-         *
-         * @return true if the callback consumed the long click, false otherwise
-         */
+
         fun onItemLongClick(parent : RecyclerView , view : View , position : Int , id : Long) : Boolean
     }
 
@@ -53,25 +28,13 @@ internal class ItemClickSupport private constructor(private val mRecyclerView : 
         mRecyclerView.addOnItemTouchListener(mTouchListener)
     }
 
-    /**
-     * Register a callback to be invoked when an item in the
-     * RecyclerView has been clicked.
-     *
-     * @param listener The callback that will be invoked.
-     */
-    fun setOnItemClickListener(listener : OnItemClickListener) {
+    fun setOnItemClickListener(listener : (Any , Any , Any , Any) -> Unit) {
         mItemClickListener = listener
     }
 
-    /**
-     * Register a callback to be invoked when an item in the
-     * RecyclerView has been clicked and held.
-     *
-     * @param listener The callback that will be invoked.
-     */
     fun setOnItemLongClickListener(listener : OnItemLongClickListener) {
-        if (! mRecyclerView.isLongClickable()) {
-            mRecyclerView.setLongClickable(true)
+        if (! mRecyclerView.isLongClickable) {
+            mRecyclerView.isLongClickable = true
         }
 
         mItemLongClickListener = listener
@@ -98,7 +61,7 @@ internal class ItemClickSupport private constructor(private val mRecyclerView : 
             return false
         }
 
-        fun onRequestDisallowInterceptTouchEvent(disallowIntercept : Boolean) {
+        override fun onRequestDisallowInterceptTouchEvent(disallowIntercept : Boolean) {
 
         }
     }
@@ -125,7 +88,7 @@ internal class ItemClickSupport private constructor(private val mRecyclerView : 
         fun from(recyclerView : RecyclerView?) : ItemClickSupport? {
             return if (recyclerView == null) {
                 null
-            } else recyclerView !!.getTag(R.id.twowayview_item_click_support)
+            } else recyclerView.getTag(R.id.twowayview_item_click_support) as ItemClickSupport
 
         }
     }

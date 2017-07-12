@@ -4,9 +4,6 @@ import android.net.Uri
 import android.os.Parcel
 import android.os.Parcelable
 
-/**
- * Music track model.
- */
 class MusicItem : Parcelable {
     private var title : String? = null
     private var album : String? = null
@@ -127,8 +124,8 @@ class MusicItem : Parcelable {
         this.album = `in`.readString()
         this.artist = `in`.readString()
         this.duration = `in`.readLong()
-        this.albumArtUri = `in`.readParcelable(Uri::class.java !!.getClassLoader())
-        this.fileUri = `in`.readParcelable(Uri::class.java !!.getClassLoader())
+        this.albumArtUri = `in`.readParcelable(Uri::class.java.classLoader)
+        this.fileUri = `in`.readParcelable(Uri::class.java.classLoader)
     }
 
     companion object {
@@ -138,7 +135,7 @@ class MusicItem : Parcelable {
                 return MusicItem(source)
             }
 
-            override fun newArray(size : Int) : Array<MusicItem> {
+            override fun newArray(size : Int) : Array<MusicItem?> {
                 return arrayOfNulls(size)
             }
         }

@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'me.tatarka.retrolambda'
 apply plugin: 'kotlin-android'
 
 android {
@@ -6,7 +7,7 @@ android {
     buildToolsVersion "26.0.0"
     defaultConfig {
         applicationId "e.chakritrakhuang.kotlinmusicbobber"
-        minSdkVersion 26
+        minSdkVersion 23
         targetSdkVersion 26
         versionCode 1
         versionName "1.0"
@@ -31,7 +32,11 @@ dependencies {
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
     implementation 'com.android.support:recyclerview-v7:26.0.0-beta1'
     implementation 'com.jakewharton:butterknife:8.4.0'
+    implementation 'com.github.bumptech.glide:glide:4.0.0-RC1'
+    implementation 'jp.wasabeef:glide-transformations:2.0.2'
+    implementation 'jp.co.cyberagent.android.gpuimage:gpuimage-library:1.4.1'
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+    implementation 'com.android.support:palette-v7:26.0.0-beta1'
 }
 repositories {
     maven {

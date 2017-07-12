@@ -4,9 +4,6 @@ import android.text.TextUtils
 
 import java.util.ArrayList
 
-/**
- * Filter for list of tracks.
- */
 internal class MusicFilter @Throws(AssertionError::class)
 constructor(highlightColor : Int) : BaseFilter<MusicItem>(highlightColor) {
 

@@ -15,9 +15,6 @@ import butterknife.Bind
 import butterknife.ButterKnife
 import jp.wasabeef.glide.transformations.CropCircleTransformation
 
-/**
- * Adapter for list of tracks.
- */
 internal class MusicAdapter(context : Context) : BaseRecyclerViewAdapter<MusicItem , MusicAdapter.MusicViewHolder>(context) {
 
     private val cropCircleTransformation : CropCircleTransformation
@@ -26,12 +23,12 @@ internal class MusicAdapter(context : Context) : BaseRecyclerViewAdapter<MusicIt
         cropCircleTransformation = CropCircleTransformation(context)
     }
 
-    fun onCreateViewHolder(parent : ViewGroup , viewType : Int) : MusicViewHolder {
+    override fun onCreateViewHolder(parent : ViewGroup , viewType : Int) : MusicViewHolder {
         val view = inflater.inflate(R.layout.item_music , parent , false)
         return MusicViewHolder(view)
     }
 
-    fun onBindViewHolder(holder : MusicViewHolder , position : Int) {
+    override fun onBindViewHolder(holder : MusicViewHolder , position : Int) {
         val item = getItem(position)
         holder.title !!.text = filter !!.highlightFilteredSubstring(item.title())
         holder.artist !!.text = filter !!.highlightFilteredSubstring(item.artist())

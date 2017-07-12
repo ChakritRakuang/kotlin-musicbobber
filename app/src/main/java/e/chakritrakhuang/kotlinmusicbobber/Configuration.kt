@@ -191,34 +191,34 @@ internal class Configuration private constructor(builder : Builder) {
 
     internal class Builder {
 
-        private var lightColor : Int = 0
-        private var darkColor : Int = 0
-        private var progressColor : Int = 0
-        private var expandedColor : Int = 0
-        private var width : Float = 0.toFloat()
-        private var radius : Float = 0.toFloat()
-        private var context : Context? = null
-        private var random : Random? = null
-        private var playDrawable : Drawable? = null
-        private var pauseDrawable : Drawable? = null
-        private var prevDrawable : Drawable? = null
-        private var nextDrawable : Drawable? = null
-        private var playlistDrawable : Drawable? = null
-        private var albumDrawable : Drawable? = null
-        private var playbackState : PlaybackState? = null
-        private var buttonPadding : Int = 0
-        private var crossStrokeWidth : Float = 0.toFloat()
-        private var progressStrokeWidth : Float = 0.toFloat()
-        private var shadowRadius : Float = 0.toFloat()
-        private var shadowDx : Float = 0.toFloat()
-        private var shadowDy : Float = 0.toFloat()
-        private var shadowColor : Int = 0
-        private var bubblesMinSize : Float = 0.toFloat()
-        private var bubblesMaxSize : Float = 0.toFloat()
-        private var crossColor : Int = 0
-        private var crossOverlappedColor : Int = 0
-        private var accDecInterpolator : Interpolator? = null
-        private var prevNextExtraPadding : Int = 0
+        internal var lightColor : Int = 0
+        internal var darkColor : Int = 0
+        internal var progressColor : Int = 0
+        internal var expandedColor : Int = 0
+        internal var width : Float = 0.toFloat()
+        internal var radius : Float = 0.toFloat()
+        internal var context : Context? = null
+        internal var random : Random? = null
+        internal var playDrawable : Drawable? = null
+        internal var pauseDrawable : Drawable? = null
+        internal var prevDrawable : Drawable? = null
+        internal var nextDrawable : Drawable? = null
+        internal var playlistDrawable : Drawable? = null
+        internal var albumDrawable : Drawable? = null
+        internal var playbackState : PlaybackState? = null
+        internal var buttonPadding : Int = 0
+        internal var crossStrokeWidth : Float = 0.toFloat()
+        internal var progressStrokeWidth : Float = 0.toFloat()
+        internal var shadowRadius : Float = 0.toFloat()
+        internal var shadowDx : Float = 0.toFloat()
+        internal var shadowDy : Float = 0.toFloat()
+        internal var shadowColor : Int = 0
+        internal var bubblesMinSize : Float = 0.toFloat()
+        internal var bubblesMaxSize : Float = 0.toFloat()
+        internal var crossColor : Int = 0
+        internal var crossOverlappedColor : Int = 0
+        internal var accDecInterpolator : Interpolator? = null
+        internal var prevNextExtraPadding : Int = 0
 
         fun context(context : Context) : Builder {
             this.context = context

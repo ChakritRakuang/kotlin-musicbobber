@@ -1,9 +1,33 @@
 package e.chakritrakhuang.kotlinmusicbobber
 
-import android.support.v7.app.AppCompatActivity
+import android.Manifest
+import android.annotation.TargetApi
+import android.app.ActivityManager
+import android.content.Context
+import android.content.DialogInterface
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
+import android.support.v4.app.ActivityCompat
+import android.support.v4.app.LoaderManager
+import android.support.v4.content.ContextCompat
+import android.support.v4.content.Loader
+import android.support.v4.view.MenuItemCompat
+import android.support.v7.app.AlertDialog
+import android.support.v7.app.AppCompatActivity
+import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.RecyclerView
+import android.support.v7.widget.SearchView
+import android.view.Menu
+import android.view.View
+import android.widget.Toast
+import butterknife.ButterKnife
 
-class MainActivity : AppCompatActivity() , LoaderManager.LoaderCallbacks<Collection<MusicItem>> , SearchView.OnQueryTextListener {
+@Suppress("DEPRECATION")
+class MainActivity<Bind> : AppCompatActivity() , LoaderManager.LoaderCallbacks<Collection<MusicItem>> , SearchView.OnQueryTextListener {
 
     @Bind(R.id.recycler_view)
     internal var recyclerView : RecyclerView? = null
@@ -19,35 +43,29 @@ class MainActivity : AppCompatActivity() , LoaderManager.LoaderCallbacks<Collect
         setContentView(R.layout.activity_main)
         ButterKnife.bind(this)
         adapter = MusicAdapter(this)
-        recyclerView !!.setLayoutManager(LinearLayoutManager(this , LinearLayoutManager.VERTICAL , false))
-        recyclerView !!.setAdapter(adapter)
+        recyclerView !!.layoutManager = LinearLayoutManager(this , LinearLayoutManager.VERTICAL , false)
+        recyclerView !!.adapter = adapter
         emptyViewObserver = EmptyViewObserver(emptyView !!)
         emptyViewObserver !!.bind(recyclerView !!)
         val filter = MusicFilter(ContextCompat.getColor(this , R.color.colorAccent))
         adapter !!.withFilter(filter)
-        ItemClickSupport.addTo(recyclerView)
-                .setOnItemClickListener(object : ItemClickSupport.OnItemClickListener {
-                    fun onItemClick(parent : RecyclerView , view : View , position : Int , id : Long) {
-                        val item = adapter !!.getItem(position)
-                        if (! isServiceRunning(MusicService::class.java)) {
-                            MusicService.setTracks(this@MainActivity , adapter !!.snapshot.toTypedArray<MusicItem>())
-                        }
-                        MusicService.playTrack(this@MainActivity , item)
+        ItemClickSupport.addTo(recyclerView !!)
+                .setOnItemClickListener { parent , view , position , id ->
+                    val item = adapter !!.getItem(position as Int)
+                    if (! isServiceRunning(MusicService::class.java)) {
+                        MusicService.setTracks(this@MainActivity , adapter !!.snapshot.toTypedArray())
                     }
-                })
+                    MusicService.playTrack(this@MainActivity , item)
+                }
 
         // check if we can draw overlays
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && ! Settings.canDrawOverlays(this@MainActivity)) {
-            val listener = object : DialogInterface.OnClickListener() {
-
-                @TargetApi(Build.VERSION_CODES.M)
-                fun onClick(dialog : DialogInterface , which : Int) {
-                    if (which == DialogInterface.BUTTON_POSITIVE) {
-                        val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION , Uri.parse("package:" + packageName))
-                        startActivityForResult(intent , OVERLAY_PERMISSION_REQ_CODE)
-                    } else if (which == DialogInterface.BUTTON_NEGATIVE) {
-                        onPermissionsNotGranted()
-                    }
+            val listener = DialogInterface.OnClickListener { dialog , which ->
+                if (which == DialogInterface.BUTTON_POSITIVE) {
+                    val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION , Uri.parse("package:" + packageName))
+                    startActivityForResult(intent , OVERLAY_PERMISSION_REQ_CODE)
+                } else if (which == DialogInterface.BUTTON_NEGATIVE) {
+                    onPermissionsNotGranted()
                 }
             }
             AlertDialog.Builder(this@MainActivity)
@@ -62,7 +80,7 @@ class MainActivity : AppCompatActivity() , LoaderManager.LoaderCallbacks<Collect
         checkReadStoragePermission()
     }
 
-    protected fun onActivityResult(requestCode : Int , resultCode : Int , data : Intent) {
+    override fun onActivityResult(requestCode : Int , resultCode : Int , data : Intent) {
         super.onActivityResult(requestCode , resultCode , data)
         if (requestCode == OVERLAY_PERMISSION_REQ_CODE) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && ! Settings.canDrawOverlays(this@MainActivity)) {
@@ -73,11 +91,11 @@ class MainActivity : AppCompatActivity() , LoaderManager.LoaderCallbacks<Collect
         }
     }
 
-    override fun onRequestPermissionsResult(requestCode : Int , @NonNull permissions : Array<String> , @NonNull grantResults : IntArray) {
+    override fun onRequestPermissionsResult(requestCode : Int , permissions : Array<String> , grantResults : IntArray) {
         super.onRequestPermissionsResult(requestCode , permissions , grantResults)
         if (requestCode == EXT_STORAGE_PERMISSION_REQ_CODE) {
             for (i in permissions.indices) {
-                if (Manifest.permission.READ_EXTERNAL_STORAGE.equals(permissions[i]) && grantResults[i] == PackageManager.PERMISSION_GRANTED) {
+                if (Manifest.permission.READ_EXTERNAL_STORAGE == permissions[i] && grantResults[i] == PackageManager.PERMISSION_GRANTED) {
                     loadMusic()
                     return
                 }
@@ -101,17 +119,15 @@ class MainActivity : AppCompatActivity() , LoaderManager.LoaderCallbacks<Collect
      */
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     private fun checkReadStoragePermission() {
-        if (ContextCompat.checkSelfPermission(this , Manifest.permission.READ_EXTERNAL_STORAGE) !== PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(this , Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             if (ActivityCompat.shouldShowRequestPermissionRationale(this , Manifest.permission.READ_EXTERNAL_STORAGE)) {
-                val onClickListener = object : DialogInterface.OnClickListener() {
-                    fun onClick(dialog : DialogInterface , which : Int) {
-                        if (which == DialogInterface.BUTTON_POSITIVE) {
-                            ActivityCompat.requestPermissions(this@MainActivity , arrayOf<String>(Manifest.permission.READ_EXTERNAL_STORAGE) , EXT_STORAGE_PERMISSION_REQ_CODE)
-                        } else if (which == DialogInterface.BUTTON_NEGATIVE) {
-                            onPermissionsNotGranted()
-                        }
-                        dialog.dismiss()
+                val onClickListener = DialogInterface.OnClickListener { dialog , which ->
+                    if (which == DialogInterface.BUTTON_POSITIVE) {
+                        ActivityCompat.requestPermissions(this@MainActivity , arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE) , EXT_STORAGE_PERMISSION_REQ_CODE)
+                    } else if (which == DialogInterface.BUTTON_NEGATIVE) {
+                        onPermissionsNotGranted()
                     }
+                    dialog.dismiss()
                 }
                 AlertDialog.Builder(this)
                         .setTitle(R.string.permissions_title)
@@ -122,7 +138,7 @@ class MainActivity : AppCompatActivity() , LoaderManager.LoaderCallbacks<Collect
                         .show()
                 return
             }
-            ActivityCompat.requestPermissions(this@MainActivity , arrayOf<String>(Manifest.permission.READ_EXTERNAL_STORAGE) , EXT_STORAGE_PERMISSION_REQ_CODE)
+            ActivityCompat.requestPermissions(this@MainActivity , arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE) , EXT_STORAGE_PERMISSION_REQ_CODE)
             return
         }
         loadMusic()
@@ -143,7 +159,7 @@ class MainActivity : AppCompatActivity() , LoaderManager.LoaderCallbacks<Collect
         finish()
     }
 
-    fun onCreateOptionsMenu(menu : Menu) : Boolean {
+    override fun onCreateOptionsMenu(menu : Menu) : Boolean {
         menu.clear()
         menuInflater.inflate(R.menu.main , menu)
         val searchItem = menu.findItem(R.id.item_search)
@@ -152,27 +168,27 @@ class MainActivity : AppCompatActivity() , LoaderManager.LoaderCallbacks<Collect
         return true
     }
 
-    fun onCreateLoader(id : Int , args : Bundle) : Loader<Collection<MusicItem>>? {
+    override fun onCreateLoader(id : Int , args : Bundle) : Loader<Collection<MusicItem>>? {
         return if (id == MUSIC_LOADER_ID) MusicLoader(this) else null
     }
 
-    fun onLoadFinished(loader : Loader<Collection<MusicItem>> , data : Collection<MusicItem>) {
+    override fun onLoadFinished(loader : Loader<Collection<MusicItem>> , data : Collection<MusicItem>) {
         adapter !!.addAll(data)
-        adapter !!.notifyItemRangeInserted(0 , data.size())
-        MusicService.setTracks(this , data.toArray(arrayOfNulls<MusicItem>(data.size())))
+        adapter !!.notifyItemRangeInserted(0 , data.size)
+        MusicService.setTracks(this , data.toTypedArray())
     }
 
-    fun onLoaderReset(loader : Loader<Collection<MusicItem>>) {
+    override fun onLoaderReset(loader : Loader<Collection<MusicItem>>) {
         val size = adapter !!.itemCount
         adapter !!.clear()
         adapter !!.notifyItemRangeRemoved(0 , size)
     }
 
-    fun onQueryTextSubmit(query : String) : Boolean {
+    override fun onQueryTextSubmit(query : String) : Boolean {
         return false
     }
 
-    fun onQueryTextChange(newText : String) : Boolean {
+    override fun onQueryTextChange(newText : String) : Boolean {
         adapter !!.filter !!.filter(newText)
         return true
     }
@@ -188,14 +204,9 @@ class MainActivity : AppCompatActivity() , LoaderManager.LoaderCallbacks<Collect
      * @param serviceClass
      * @return
      */
-    private fun isServiceRunning(@NonNull serviceClass : Class<*>) : Boolean {
+    private fun isServiceRunning(serviceClass : Class<*>) : Boolean {
         val manager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
-        for (service in manager.getRunningServices(Integer.MAX_VALUE)) {
-            if (serviceClass.name == service.service.getClassName()) {
-                return true
-            }
-        }
-        return false
+        return manager.getRunningServices(Integer.MAX_VALUE).any { serviceClass.name == it.service.className }
     }
 
     companion object {
