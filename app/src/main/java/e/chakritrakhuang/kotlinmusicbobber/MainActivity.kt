@@ -27,12 +27,10 @@ import android.widget.Toast
 import butterknife.ButterKnife
 
 @Suppress("DEPRECATION")
-class MainActivity<Bind> : AppCompatActivity() , LoaderManager.LoaderCallbacks<Collection<MusicItem>> , SearchView.OnQueryTextListener {
+class MainActivity : AppCompatActivity() , LoaderManager.LoaderCallbacks<Collection<MusicItem>> , SearchView.OnQueryTextListener {
 
-    @Bind(R.id.recycler_view)
     internal var recyclerView : RecyclerView? = null
 
-    @Bind(R.id.empty_view)
     internal var emptyView : View? = null
 
     private var adapter : MusicAdapter? = null

@@ -6,6 +6,7 @@ import android.animation.FloatEvaluator
 import android.animation.IntEvaluator
 import android.animation.PropertyValuesHolder
 import android.animation.ValueAnimator
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.SystemClock
 import android.view.GestureDetector
@@ -64,6 +65,7 @@ internal class TouchManager(private val view : View , private val boundsChecker 
         return this
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onTouch(v : View , event : MotionEvent) : Boolean {
         val res = (! touchCanceled || event.action == MotionEvent.ACTION_UP) && gestureDetector.onTouchEvent(event)
         if (event.action == MotionEvent.ACTION_DOWN) {
@@ -169,43 +171,18 @@ internal class TouchManager(private val view : View , private val boundsChecker 
 
     }
 
-    /**
-     * Interface that return sticky bounds for widget.
-     */
     internal interface BoundsChecker {
 
-        /**
-         * Get sticky left position.
-         * @param screenWidth screen width
-         * @return sticky left position
-         */
         fun stickyLeftSide(screenWidth : Float) : Float
 
-        /**
-         * Get sticky right position.
-         * @param screenWidth screen width
-         * @return sticky right position
-         */
         fun stickyRightSide(screenWidth : Float) : Float
 
-        /**
-         * Get sticky top position.
-         * @param screenHeight screen height
-         * @return sticky top position
-         */
         fun stickyTopSide(screenHeight : Float) : Float
 
-        /**
-         * Get sticky bottom position.
-         * @param screenHeight screen height
-         * @return sticky bottom position
-         */
         fun stickyBottomSide(screenHeight : Float) : Float
     }
 
-    /**
-     * View's gesture listener.
-     */
+    @Suppress("IMPLICIT_CAST_TO_ANY")
     private inner class GestureListener : GestureDetector.SimpleOnGestureListener() {
 
         private var prevX : Int = 0
@@ -272,7 +249,7 @@ internal class TouchManager(private val view : View , private val boundsChecker 
                     metaState
             )
             view.dispatchTouchEvent(event)
-            //            onUpEvent(e);
+
         }
 
         override fun onFling(e1 : MotionEvent , e2 : MotionEvent , velocityX : Float , velocityY : Float) : Boolean {
@@ -315,9 +292,6 @@ internal class TouchManager(private val view : View , private val boundsChecker 
         }
     }
 
-    /**
-     * Helper class for animating fling gesture.
-     */
     private inner class FlingGestureAnimator internal constructor() {
         private val flingGestureAnimator : ValueAnimator
         private val dxHolder : PropertyValuesHolder
@@ -333,7 +307,8 @@ internal class TouchManager(private val view : View , private val boundsChecker 
             dyHolder.setEvaluator(FloatEvaluator())
             flingGestureAnimator = ValueAnimator.ofPropertyValuesHolder(dxHolder , dyHolder)
             flingGestureAnimator.interpolator = interpolator
-            flingGestureAnimator.duration = DEFAULT_ANIM_DURATION
+            val DEFAULT_ANIM_DURATION = 0
+            flingGestureAnimator.duration = DEFAULT_ANIM_DURATION.toLong()
             flingGestureAnimator.addUpdateListener { animation ->
                 val newX = animation.getAnimatedValue("x") as Float
                 val newY = animation.getAnimatedValue("y") as Float
@@ -370,6 +345,7 @@ internal class TouchManager(private val view : View , private val boundsChecker 
 
             params = view.layoutParams as WindowManager.LayoutParams
 
+            val DEFAULT_ANIM_DURATION = 0
             val dx = velocityX / 1000f * DEFAULT_ANIM_DURATION
             val dy = velocityY / 1000f * DEFAULT_ANIM_DURATION
 
@@ -384,8 +360,8 @@ internal class TouchManager(private val view : View , private val boundsChecker 
 
             newY = params !!.y + dy
 
-            dxHolder.setFloatValues(params !!.x , newX)
-            dyHolder.setFloatValues(params !!.y , newY)
+            dxHolder.setFloatValues(params !!.x.toFloat() , newX)
+            dyHolder.setFloatValues(params !!.y.toFloat() , newY)
 
             flingGestureAnimator.start()
         }
@@ -393,14 +369,8 @@ internal class TouchManager(private val view : View , private val boundsChecker 
         internal val isAnimating : Boolean
             get() = flingGestureAnimator.isRunning
 
-        companion object {
-            private val DEFAULT_ANIM_DURATION : Long = 200
-        }
     }
 
-    /**
-     * Helper class for animating sticking to screen edge.
-     */
     private inner class StickyEdgeAnimator {
         private val dxHolder : PropertyValuesHolder
         private val dyHolder : PropertyValuesHolder
@@ -416,7 +386,8 @@ internal class TouchManager(private val view : View , private val boundsChecker 
             dyHolder.setEvaluator(IntEvaluator())
             edgeAnimator = ValueAnimator.ofPropertyValuesHolder(dxHolder , dyHolder)
             edgeAnimator.interpolator = interpolator
-            edgeAnimator.duration = DEFAULT_ANIM_DURATION
+            val DEFAULT_ANIM_DURATION = 0
+            edgeAnimator.duration = DEFAULT_ANIM_DURATION.toLong()
             edgeAnimator.addUpdateListener { animation ->
                 val x = animation.getAnimatedValue("x") as Int
                 val y = animation.getAnimatedValue("y") as Int
@@ -490,16 +461,20 @@ internal class TouchManager(private val view : View , private val boundsChecker 
         val isAnimating : Boolean
             get() = edgeAnimator.isRunning
 
-        companion object {
-            private val DEFAULT_ANIM_DURATION : Long = 300
+        fun animate() {
+            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
         }
     }
 
-    fun animateToBounds(boundsChecker : BoundsChecker , afterAnimation : () -> Unit) {
-        stickyEdgeAnimator.animate(boundsChecker , afterAnimation)
+    fun animateToBounds(afterAnimation : () -> Unit) {
+        stickyEdgeAnimator.animate()
     }
 
     fun animateToBounds() {
         stickyEdgeAnimator.animate(boundsChecker , null)
     }
+}
+
+private operator fun Any.times(dt : Any) : Float {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
 }

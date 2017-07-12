@@ -20,6 +20,9 @@ import java.util.Random
 
 @SuppressLint("ViewConstructor")
 internal class ExpandCollapseWidget(configuration : Configuration) : ImageView(configuration.context()) , PlaybackState.PlaybackStateListener {
+    override fun setAlpha(it : Nothing?) : Any {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
 
     private val paint : Paint
     private val radius : Float

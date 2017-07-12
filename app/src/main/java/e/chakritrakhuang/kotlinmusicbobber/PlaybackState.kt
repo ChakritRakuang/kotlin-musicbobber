@@ -101,5 +101,6 @@ internal class PlaybackState {
         fun onProgressChanged(position : Int , duration : Int , percentage : Float)
 
         fun setAlpha(it : Nothing?) : Any
+        fun setExpandListener(expandListener : (Any) -> Unit)
     }
 }

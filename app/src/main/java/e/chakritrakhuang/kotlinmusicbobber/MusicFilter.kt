@@ -1,6 +1,7 @@
 package e.chakritrakhuang.kotlinmusicbobber
 
 import android.text.TextUtils
+import android.widget.Filter
 
 import java.util.ArrayList
 

@@ -15,15 +15,14 @@ import android.support.v7.graphics.Palette
 import android.view.View
 import android.view.animation.LinearInterpolator
 import android.widget.ImageView
-
 import java.util.HashMap
 import java.util.Random
 
-/**
- * Collapsed state view.
- */
 @SuppressLint("ViewConstructor")
 internal class PlayPauseButton(configuration : Configuration) : ImageView(configuration.context()) , PlaybackState.PlaybackStateListener {
+    override fun setAlpha(it : Nothing?) : Any {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
 
     private val albumPlaceholderPaint : Paint
     private val buttonPaint : Paint
@@ -104,14 +103,9 @@ internal class PlayPauseButton(configuration : Configuration) : ImageView(config
         this.pauseDrawable = configuration.pauseDrawable() !!.constantState !!.newDrawable().mutate()
         this.pauseDrawable.alpha = 0
         this.playbackState !!.addPlaybackStateListener(this)
-        val listener = { animation ->
-            buttonSize = animation.getAnimatedValue()
-            invalidate()
-        }
-        this.touchDownAnimator = ValueAnimator.ofFloat(1 , 0.9f).setDuration(Configuration.TOUCH_ANIMATION_DURATION)
-        this.touchDownAnimator.addUpdateListener(listener)
-        this.touchUpAnimator = ValueAnimator.ofFloat(0.9f , 1).setDuration(Configuration.TOUCH_ANIMATION_DURATION)
-        this.touchUpAnimator.addUpdateListener(listener)
+
+        this.touchDownAnimator = ValueAnimator.ofFloat(1F , 0.9f).setDuration(Configuration.TOUCH_ANIMATION_DURATION)
+        this.touchUpAnimator = ValueAnimator.ofFloat(0.9f , 1F).setDuration(Configuration.TOUCH_ANIMATION_DURATION)
         this.bubblesAnimator = ValueAnimator.ofInt(0 , ANIMATION_TIME_L.toInt()).setDuration(ANIMATION_TIME_L)
         this.bubblesAnimator.interpolator = LinearInterpolator()
         this.bubblesAnimator.addUpdateListener { animation ->
@@ -163,7 +157,7 @@ internal class PlayPauseButton(configuration : Configuration) : ImageView(config
                 pauseDrawable.alpha = DrawableUtils.between(255 * (1 - colorDt) , 0f , 255f).toInt()
             }
         }
-        for (i in 0 .. TOTAL_BUBBLES_COUNT - 1) {
+        for (i in 0 until TOTAL_BUBBLES_COUNT) {
             bubbleSpeeds[i] = fraction * bubbleSpeedCoefficients[i]
         }
     }
@@ -188,7 +182,7 @@ internal class PlayPauseButton(configuration : Configuration) : ImageView(config
 
     private fun startBubblesAnimation() {
         randomStartAngle = 360 * random !!.nextFloat()
-        for (i in 0 .. TOTAL_BUBBLES_COUNT - 1) {
+        for (i in 0 until TOTAL_BUBBLES_COUNT) {
             val speed = 0.5f + 0.5f * random.nextFloat()
             val size = bubblesMinSize + (bubblesMaxSize - bubblesMinSize) * random.nextFloat()
             val radius = size / 2f
@@ -221,14 +215,14 @@ internal class PlayPauseButton(configuration : Configuration) : ImageView(config
         } else if (playbackState !!.state() != Configuration.STATE_PLAYING) {
             playDrawable.alpha = 255
             pauseDrawable.alpha = 0
-            // in case widget was drawn without animation in different state
+
             if (buttonPaint.color != pausedColor) {
                 buttonPaint.color = pausedColor
             }
         } else {
             playDrawable.alpha = 0
             pauseDrawable.alpha = 255
-            // in case widget was drawn without animation in different state
+
             if (buttonPaint.color != playingColor) {
                 buttonPaint.color = playingColor
             }

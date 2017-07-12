@@ -17,10 +17,8 @@ import android.util.Log
 import android.widget.Toast
 
 import com.bumptech.glide.Glide
-import com.bumptech.glide.request.animation.GlideAnimation
 import com.bumptech.glide.request.target.SimpleTarget
-import com.cleveroad.audiowidget.AudioWidget
-
+import com.bumptech.glide.request.transition.Transition
 import java.io.IOException
 import java.util.ArrayList
 import java.util.Arrays
@@ -82,7 +80,7 @@ class MusicService : Service() , MediaPlayer.OnPreparedListener , MediaPlayer.On
                 }
             }
         }
-        return Service.START_STICKY
+        return START_STICKY
     }
 
     private fun selectNewTrack(intent : Intent) {
@@ -129,9 +127,9 @@ class MusicService : Service() , MediaPlayer.OnPreparedListener , MediaPlayer.On
             playingItem = items[playingIndex]
         }
         items.clear()
-        if (MusicService.tracks != null) {
-            items.addAll(Arrays.asList(*MusicService.tracks !!))
-            MusicService.tracks = null
+        if (tracks != null) {
+            items.addAll(Arrays.asList(*tracks !!))
+            tracks = null
         }
         if (playingItem == null) {
             playingIndex = - 1
@@ -173,26 +171,26 @@ class MusicService : Service() , MediaPlayer.OnPreparedListener , MediaPlayer.On
         stopTrackingPosition()
         startTrackingPosition()
         val size = resources.getDimensionPixelSize(R.dimen.cover_size)
-        Glide.with(this)
+        cropCircleTransformation?.let {
+            Glide.with(this)
                 .load(items[playingIndex].albumArtUri())
                 .asBitmap()
                 .override(size , size)
                 .centerCrop()
-                .transform(cropCircleTransformation)
+                .transform(it)
                 .into(object : SimpleTarget<Bitmap>() {
-                    override fun onResourceReady(resource : Bitmap , glideAnimation : GlideAnimation<in Bitmap>) {
+                    override fun onResourceReady(resource : Bitmap? , transition : Transition<in Bitmap>?) {
+                        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                    }
+
+                    fun onResourceReady(resource : Bitmap , glideAnimation : GlideAnimation<in Bitmap>) {
                         if (audioWidget != null) {
                             audioWidget !!.controller().albumCoverBitmap(resource)
                         }
                     }
 
-                    fun onLoadFailed(e : Exception , errorDrawable : Drawable) {
-                        super.onLoadFailed(e , errorDrawable)
-                        if (audioWidget != null) {
-                            audioWidget !!.controller().albumCover(null)
-                        }
-                    }
                 })
+        }
     }
 
     override fun onCompletion(mp : MediaPlayer) {
@@ -349,4 +347,16 @@ class MusicService : Service() , MediaPlayer.OnPreparedListener , MediaPlayer.On
             context.startService(intent)
         }
     }
+}
+
+interface GlideAnimation<T> {
+
+}
+
+private fun Any.centerCrop() : Any {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+}
+
+private fun Any.override(size : Int , size1 : Int) : Any {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
 }

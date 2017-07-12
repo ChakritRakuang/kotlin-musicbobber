@@ -29,7 +29,6 @@ internal class ItemClickSupport private constructor(private val mRecyclerView : 
     }
 
     fun setOnItemClickListener(listener : (Any , Any , Any , Any) -> Unit) {
-        mItemClickListener = listener
     }
 
     fun setOnItemLongClickListener(listener : OnItemLongClickListener) {
@@ -42,7 +41,7 @@ internal class ItemClickSupport private constructor(private val mRecyclerView : 
 
     private inner class TouchListener internal constructor(recyclerView : RecyclerView) : ClickItemTouchListener(recyclerView) {
 
-        internal override fun performItemClick(parent : RecyclerView , view : View , position : Int , id : Long) : Boolean {
+        override fun performItemClick(parent : RecyclerView , view : View , position : Int , id : Long) : Boolean {
             if (mItemClickListener != null) {
                 view.playSoundEffect(SoundEffectConstants.CLICK)
                 mItemClickListener !!.onItemClick(parent , view , position , id)
@@ -52,7 +51,7 @@ internal class ItemClickSupport private constructor(private val mRecyclerView : 
             return false
         }
 
-        internal override fun performItemLongClick(parent : RecyclerView , view : View , position : Int , id : Long) : Boolean {
+        override fun performItemLongClick(parent : RecyclerView , view : View , position : Int , id : Long) : Boolean {
             if (mItemLongClickListener != null) {
                 view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
                 return mItemLongClickListener !!.onItemLongClick(parent , view , position , id)

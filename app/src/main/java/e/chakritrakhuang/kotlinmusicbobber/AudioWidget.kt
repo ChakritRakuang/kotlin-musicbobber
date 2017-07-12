@@ -3,7 +3,6 @@ package e.chakritrakhuang.kotlinmusicbobber
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.ValueAnimator
-import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.PixelFormat
@@ -106,7 +105,6 @@ class AudioWidget private constructor(builder : Builder) {
                 .screenWidth(screenSize.x)
                 .screenHeight(screenSize.y)
 
-        playPauseButtonManager.callback(PlayPauseButtonCallback())
         expandedWidgetManager.callback(ExpandCollapseWidgetCallback())
         expandCollapseWidget.onWidgetStateChangedListener(object : OnWidgetStateChangedListener {
             override fun onWidgetStateChanged(state : State) {
@@ -373,7 +371,7 @@ class AudioWidget private constructor(builder : Builder) {
         updatePlayPauseButtonPosition()
         if (expandCollapseWidget.collapse()) {
             playPauseButtonManager.animateToBounds()
-            expandedWidgetManager.animateToBounds(expToPpbBoundsChecker , null !!)
+            expandedWidgetManager.animateToBounds(null !!)
         }
     }
 
@@ -400,7 +398,7 @@ class AudioWidget private constructor(builder : Builder) {
     private fun checkSpaceAndShowExpanded() {
         val params = playPauseButton.layoutParams as WindowManager.LayoutParams
         val x = params.x
-        val y = params.y
+        params.y
         val expandDirection : Int
         if (x + widgetHeight > screenSize.x / 2) {
             expandDirection = ExpandCollapseWidget.DIRECTION_LEFT
@@ -408,7 +406,7 @@ class AudioWidget private constructor(builder : Builder) {
             expandDirection = ExpandCollapseWidget.DIRECTION_RIGHT
         }
 
-        playPauseButtonManager.animateToBounds(ppbToExpBoundsChecker) {
+        playPauseButtonManager.animateToBounds() {
             val params1 = playPauseButton.layoutParams as WindowManager.LayoutParams
             var x1 = params1.x
             val y1 = params1.y
@@ -467,17 +465,10 @@ class AudioWidget private constructor(builder : Builder) {
     }
 
     private abstract inner class PlayPauseButtonCallback internal constructor() : TouchManager.SimpleCallback() {
-        private val animatorUpdateListener : ValueAnimator.AnimatorUpdateListener
+        private val animatorUpdateListener : ValueAnimator.AnimatorUpdateListener = null !!
         private var readyToRemove : Boolean = false
 
         init {
-            animatorUpdateListener = { animation ->
-                if (! removeWidgetShown) {
-                    return
-                }
-                animatedRemBtnYPos = (animation.getAnimatedValue() as Float).toInt()
-                updateRemoveBtnPosition()
-            }
         }
 
         override fun onClick(x : Float , y : Float) {
@@ -732,31 +723,30 @@ class AudioWidget private constructor(builder : Builder) {
      */
     class Builder(internal val context : Context) {
 
-        @ColorInt
         internal var darkColor : Int = 0
-        @ColorInt
+
         internal var lightColor : Int = 0
-        @ColorInt
+
         internal var progressColor : Int = 0
-        @ColorInt
+
         internal var crossColor : Int = 0
-        @ColorInt
+
         internal var crossOverlappedColor : Int = 0
-        @ColorInt
+
         internal var shadowColor : Int = 0
-        @ColorInt
+
         internal var expandWidgetColor : Int = 0
-        private var buttonPadding : Int = 0
-        private var crossStrokeWidth : Float = 0.toFloat()
-        private var progressStrokeWidth : Float = 0.toFloat()
-        private var shadowRadius : Float = 0.toFloat()
-        private var shadowDx : Float = 0.toFloat()
-        private var shadowDy : Float = 0.toFloat()
+        internal var buttonPadding : Int = 0
+        internal var crossStrokeWidth : Float = 0.toFloat()
+        internal var progressStrokeWidth : Float = 0.toFloat()
+        internal var shadowRadius : Float = 0.toFloat()
+        internal var shadowDx : Float = 0.toFloat()
+        internal var shadowDy : Float = 0.toFloat()
         internal var bubblesMinSize : Float = 0.toFloat()
         internal var bubblesMaxSize : Float = 0.toFloat()
-        private var playDrawable : Drawable? = null
+        internal var playDrawable : Drawable? = null
         internal var prevDrawable : Drawable? = null
-        private var nextDrawable : Drawable? = null
+        internal var nextDrawable : Drawable? = null
         internal var playlistDrawable : Drawable? = null
         internal var defaultAlbumDrawable : Drawable? = null
         internal var pauseDrawable : Drawable? = null
@@ -767,11 +757,11 @@ class AudioWidget private constructor(builder : Builder) {
         internal var crossOverlappedColorSet : Boolean = false
         internal var shadowColorSet : Boolean = false
         internal var expandWidgetColorSet : Boolean = false
-        private var buttonPaddingSet : Boolean = false
-        private var crossStrokeWidthSet : Boolean = false
-        private var progressStrokeWidthSet : Boolean = false
-        private var shadowRadiusSet : Boolean = false
-        private var shadowDxSet : Boolean = false
+        internal var buttonPaddingSet : Boolean = false
+        internal var crossStrokeWidthSet : Boolean = false
+        internal var progressStrokeWidthSet : Boolean = false
+        internal var shadowRadiusSet : Boolean = false
+        internal var shadowDxSet : Boolean = false
         internal var shadowDySet : Boolean = false
         internal var bubblesMinSizeSet : Boolean = false
         internal var bubblesMaxSizeSet : Boolean = false
