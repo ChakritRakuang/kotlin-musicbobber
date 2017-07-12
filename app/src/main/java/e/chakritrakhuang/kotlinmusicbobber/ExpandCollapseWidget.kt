@@ -672,7 +672,7 @@ internal class ExpandCollapseWidget(configuration : Configuration) : ImageView(c
         this.collapseListener = collapseListener
     }
 
-    fun setExpandListener(expandListener : AnimationProgressListener?) {
+    fun setExpandListener(expandListener : (Any) -> Unit) {
         this.expandListener = expandListener
     }
 

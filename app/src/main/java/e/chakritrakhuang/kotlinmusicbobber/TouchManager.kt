@@ -495,7 +495,7 @@ internal class TouchManager(private val view : View , private val boundsChecker 
         }
     }
 
-    fun animateToBounds(boundsChecker : BoundsChecker , afterAnimation : Runnable?) {
+    fun animateToBounds(boundsChecker : BoundsChecker , afterAnimation : () -> Unit) {
         stickyEdgeAnimator.animate(boundsChecker , afterAnimation)
     }
 

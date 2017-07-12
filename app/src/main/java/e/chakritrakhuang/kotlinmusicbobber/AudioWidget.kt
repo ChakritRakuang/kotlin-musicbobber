@@ -3,9 +3,9 @@ package e.chakritrakhuang.kotlinmusicbobber
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.ValueAnimator
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.Paint
 import android.graphics.PixelFormat
 import android.graphics.Point
 import android.graphics.RectF
@@ -27,25 +27,17 @@ import java.lang.ref.WeakReference
 import java.util.Random
 import java.util.WeakHashMap
 
+@Suppress("NAME_SHADOWING" , "UNREACHABLE_CODE" , "IMPLICIT_CAST_TO_ANY" , "DEPRECATION")
 class AudioWidget private constructor(builder : Builder) {
 
     private val playPauseButton : PlayPauseButton
 
     private val expandCollapseWidget : ExpandCollapseWidget
 
-    /**
-     * Remove widget view.
-     */
     private val removeWidgetView : RemoveWidgetView
 
-    /**
-     * Playback state.
-     */
     private var playbackState : PlaybackState? = null
 
-    /**
-     * Widget controller.
-     */
     private val controller : Controller
 
     private val windowManager : WindowManager
@@ -60,31 +52,17 @@ class AudioWidget private constructor(builder : Builder) {
 
     private val albumCoverCache = WeakHashMap<Int , WeakReference<Drawable>>()
 
-    /**
-     * Bounds of remove widget view. Used for checking if play/pause button is inside this bounds
-     * and ready for removing from screen.
-     */
     private val removeBounds : RectF
 
-    /**
-     * Remove widget view X, Y position (hidden).
-     */
     private val hiddenRemWidPos : Point
 
-    /**
-     * Remove widget view X, Y position (visible).
-     */
     private val visibleRemWidPos : Point
     private var animatedRemBtnYPos = - 1
     private var widgetWidth : Float = 0.toFloat()
     private var widgetHeight : Float = 0.toFloat()
     private var radius : Float = 0.toFloat()
     private val onControlsClickListener : OnControlsClickListenerWrapper?
-    /**
-     * Get current visibility state.
-     *
-     * @return true if widget shown on screen, false otherwise.
-     */
+
     var isShown : Boolean = false
         private set
     private var released : Boolean = false
@@ -163,12 +141,8 @@ class AudioWidget private constructor(builder : Builder) {
         )
     }
 
-    /**
-     * Prepare configuration for widget.
-     * @param builder user defined settings
-     * @return new configuration for widget
-     */
     private fun prepareConfiguration(builder : Builder) : Configuration {
+
         val darkColor = if (builder.darkColorSet) builder.darkColor else ContextCompat.getColor(context , R.color.aw_dark)
         val lightColor = if (builder.lightColorSet) builder.lightColor else ContextCompat.getColor(context , R.color.aw_light)
         val progressColor = if (builder.progressColorSet) builder.progressColor else ContextCompat.getColor(context , R.color.aw_progress)
@@ -200,7 +174,7 @@ class AudioWidget private constructor(builder : Builder) {
         playbackState = PlaybackState()
         return Configuration.Builder()
                 .context(context)
-                .playbackState(playbackState)
+                .playbackState(playbackState !!)
                 .random(Random())
                 .accDecInterpolator(AccelerateDecelerateInterpolator())
                 .darkColor(darkColor)
@@ -230,10 +204,6 @@ class AudioWidget private constructor(builder : Builder) {
                 .build()
     }
 
-    /**
-     * Get status bar height.
-     * @return status bar height.
-     */
     private fun statusBarHeight() : Int {
         val resourceId = context.resources.getIdentifier("status_bar_height" , "dimen" , "android")
         return if (resourceId > 0) {
@@ -241,10 +211,6 @@ class AudioWidget private constructor(builder : Builder) {
         } else context.resources.getDimensionPixelSize(R.dimen.aw_status_bar_height)
     }
 
-    /**
-     * Get navigation bar height.
-     * @return navigation bar height
-     */
     private fun navigationBarHeight() : Int {
         if (hasNavigationBar()) {
             val resourceId = context.resources.getIdentifier("navigation_bar_height" , "dimen" , "android")
@@ -255,10 +221,6 @@ class AudioWidget private constructor(builder : Builder) {
         return 0
     }
 
-    /**
-     * Check if device has navigation bar.
-     * @return true if device has navigation bar, false otherwise.
-     */
     private fun hasNavigationBar() : Boolean {
         val hasBackKey = KeyCharacterMap.deviceHasKey(KeyEvent.KEYCODE_BACK)
         val hasHomeKey = KeyCharacterMap.deviceHasKey(KeyEvent.KEYCODE_HOME)
@@ -266,11 +228,6 @@ class AudioWidget private constructor(builder : Builder) {
         return ! hasBackKey && ! hasHomeKey || id > 0 && context.resources.getBoolean(id)
     }
 
-    /**
-     * Create new controller.
-     *
-     * @return new controller
-     */
     private fun newController() : Controller {
         return object : Controller {
 
@@ -312,15 +269,17 @@ class AudioWidget private constructor(builder : Builder) {
 
             override fun albumCover(albumCover : Drawable?) {
                 expandCollapseWidget.albumCover(albumCover)
-                playPauseButton.albumCover(albumCover)
+                if (albumCover != null) {
+                    playPauseButton.albumCover(albumCover)
+                }
             }
 
-            override fun albumCoverBitmap(bitmap : Bitmap?) {
-                if (bitmap == null) {
+            override fun albumCoverBitmap(albumCover : Bitmap?) {
+                if (albumCover == null) {
                     expandCollapseWidget.albumCover(null)
-                    playPauseButton.albumCover(null)
+                    playPauseButton.albumCover(null !!)
                 } else {
-                    val wrDrawable = albumCoverCache[bitmap.hashCode()]
+                    val wrDrawable = albumCoverCache[albumCover.hashCode()]
                     if (wrDrawable != null) {
                         val drawable = wrDrawable.get()
                         if (drawable != null) {
@@ -330,21 +289,15 @@ class AudioWidget private constructor(builder : Builder) {
                         }
                     }
 
-                    val albumCover = BitmapDrawable(context.resources , bitmap)
+                    val albumCover = BitmapDrawable(context.resources , albumCover)
                     expandCollapseWidget.albumCover(albumCover)
                     playPauseButton.albumCover(albumCover)
-                    albumCoverCache.put(bitmap.hashCode() , WeakReference(albumCover))
+                    albumCoverCache.put(albumCover.hashCode() , WeakReference(albumCover))
                 }
             }
         }
     }
 
-    /**
-     * Show widget at specified position.
-     *
-     * @param cx center x
-     * @param cy center y
-     */
     fun show(cx : Int , cy : Int) {
         if (isShown) {
             return
@@ -363,9 +316,6 @@ class AudioWidget private constructor(builder : Builder) {
         playPauseButtonManager.animateToBounds()
     }
 
-    /**
-     * Hide widget.
-     */
     fun hide() {
         hideInternal(true)
     }
@@ -386,14 +336,14 @@ class AudioWidget private constructor(builder : Builder) {
             try {
                 windowManager.removeView(removeWidgetView)
             } catch (e : IllegalArgumentException) {
-                // view not attached to window
+
             }
 
         }
         try {
             windowManager.removeView(expandCollapseWidget)
         } catch (e : IllegalArgumentException) {
-            // widget not added to window yet
+
         }
 
         if (onWidgetStateChangedListener != null) {
@@ -408,7 +358,10 @@ class AudioWidget private constructor(builder : Builder) {
     }
 
     fun collapse() {
-        expandCollapseWidget.setCollapseListener(AnimationProgressListener { playPauseButton.setAlpha(it) })
+        expandCollapseWidget.setCollapseListener(ExpandCollapseWidget.AnimationProgressListener {
+            val it = null
+            playPauseButton.setAlpha(it)
+        })
 
         val params = expandCollapseWidget.layoutParams as WindowManager.LayoutParams
         val cx = params.x + expandCollapseWidget.width / 2
@@ -420,7 +373,7 @@ class AudioWidget private constructor(builder : Builder) {
         updatePlayPauseButtonPosition()
         if (expandCollapseWidget.collapse()) {
             playPauseButtonManager.animateToBounds()
-            expandedWidgetManager.animateToBounds(expToPpbBoundsChecker , null)
+            expandedWidgetManager.animateToBounds(expToPpbBoundsChecker , null !!)
         }
     }
 
@@ -472,11 +425,6 @@ class AudioWidget private constructor(builder : Builder) {
         }
     }
 
-    /**
-     * Get widget controller.
-     *
-     * @return widget controller
-     */
     fun controller() : Controller {
         return controller
     }
@@ -518,10 +466,7 @@ class AudioWidget private constructor(builder : Builder) {
         protected abstract fun stickyBottomSideImpl(screenHeight : Float) : Float
     }
 
-    /**
-     * Helper class for dealing with collapsed widget touch events.
-     */
-    private inner class PlayPauseButtonCallback internal constructor() : TouchManager.SimpleCallback() {
+    private abstract inner class PlayPauseButtonCallback internal constructor() : TouchManager.SimpleCallback() {
         private val animatorUpdateListener : ValueAnimator.AnimatorUpdateListener
         private var readyToRemove : Boolean = false
 
@@ -551,7 +496,7 @@ class AudioWidget private constructor(builder : Builder) {
             handler.postDelayed({
                 if (! released) {
                     removeWidgetShown = true
-                    val animator = ValueAnimator.ofFloat(hiddenRemWidPos.y , visibleRemWidPos.y)
+                    val animator = ValueAnimator.ofFloat(hiddenRemWidPos.y.toFloat() , visibleRemWidPos.y.toFloat())
                     animator.duration = REMOVE_BTN_ANIM_DURATION
                     animator.addUpdateListener(animatorUpdateListener)
                     animator.start()
@@ -605,12 +550,14 @@ class AudioWidget private constructor(builder : Builder) {
             }
         }
 
+        abstract val REMOVE_BTN_ANIM_DURATION : Long
+
         override fun onReleased(x : Float , y : Float) {
             super.onReleased(x , y)
             playPauseButton.onTouchUp()
             released = true
             if (removeWidgetShown) {
-                val animator = ValueAnimator.ofFloat(visibleRemWidPos.y , hiddenRemWidPos.y)
+                val animator = ValueAnimator.ofFloat(visibleRemWidPos.y.toFloat() , hiddenRemWidPos.y.toFloat())
                 animator.duration = REMOVE_BTN_ANIM_DURATION
                 animator.addUpdateListener(animatorUpdateListener)
                 animator.addListener(object : AnimatorListenerAdapter() {
@@ -663,9 +610,6 @@ class AudioWidget private constructor(builder : Builder) {
         }
     }
 
-    /**
-     * Helper class for dealing with expanded widget touch events.
-     */
     private inner class ExpandCollapseWidgetCallback : TouchManager.SimpleCallback() {
 
         override fun onTouched(x : Float , y : Float) {
@@ -789,56 +733,56 @@ class AudioWidget private constructor(builder : Builder) {
     class Builder(internal val context : Context) {
 
         @ColorInt
-        private var darkColor : Int = 0
+        internal var darkColor : Int = 0
         @ColorInt
-        private var lightColor : Int = 0
+        internal var lightColor : Int = 0
         @ColorInt
-        private var progressColor : Int = 0
+        internal var progressColor : Int = 0
         @ColorInt
-        private var crossColor : Int = 0
+        internal var crossColor : Int = 0
         @ColorInt
-        private var crossOverlappedColor : Int = 0
+        internal var crossOverlappedColor : Int = 0
         @ColorInt
-        private var shadowColor : Int = 0
+        internal var shadowColor : Int = 0
         @ColorInt
-        private var expandWidgetColor : Int = 0
+        internal var expandWidgetColor : Int = 0
         private var buttonPadding : Int = 0
         private var crossStrokeWidth : Float = 0.toFloat()
         private var progressStrokeWidth : Float = 0.toFloat()
         private var shadowRadius : Float = 0.toFloat()
         private var shadowDx : Float = 0.toFloat()
         private var shadowDy : Float = 0.toFloat()
-        private var bubblesMinSize : Float = 0.toFloat()
-        private var bubblesMaxSize : Float = 0.toFloat()
+        internal var bubblesMinSize : Float = 0.toFloat()
+        internal var bubblesMaxSize : Float = 0.toFloat()
         private var playDrawable : Drawable? = null
-        private var prevDrawable : Drawable? = null
+        internal var prevDrawable : Drawable? = null
         private var nextDrawable : Drawable? = null
-        private var playlistDrawable : Drawable? = null
-        private var defaultAlbumDrawable : Drawable? = null
-        private var pauseDrawable : Drawable? = null
-        private var darkColorSet : Boolean = false
-        private var lightColorSet : Boolean = false
-        private var progressColorSet : Boolean = false
-        private var crossColorSet : Boolean = false
-        private var crossOverlappedColorSet : Boolean = false
-        private var shadowColorSet : Boolean = false
-        private var expandWidgetColorSet : Boolean = false
+        internal var playlistDrawable : Drawable? = null
+        internal var defaultAlbumDrawable : Drawable? = null
+        internal var pauseDrawable : Drawable? = null
+        internal var darkColorSet : Boolean = false
+        internal var lightColorSet : Boolean = false
+        internal var progressColorSet : Boolean = false
+        internal var crossColorSet : Boolean = false
+        internal var crossOverlappedColorSet : Boolean = false
+        internal var shadowColorSet : Boolean = false
+        internal var expandWidgetColorSet : Boolean = false
         private var buttonPaddingSet : Boolean = false
         private var crossStrokeWidthSet : Boolean = false
         private var progressStrokeWidthSet : Boolean = false
         private var shadowRadiusSet : Boolean = false
         private var shadowDxSet : Boolean = false
-        private var shadowDySet : Boolean = false
-        private var bubblesMinSizeSet : Boolean = false
-        private var bubblesMaxSizeSet : Boolean = false
-        private var edgeOffsetXCollapsed : Int = 0
-        private var edgeOffsetYCollapsed : Int = 0
-        private var edgeOffsetXExpanded : Int = 0
-        private var edgeOffsetYExpanded : Int = 0
-        private var edgeOffsetXCollapsedSet : Boolean = false
-        private var edgeOffsetYCollapsedSet : Boolean = false
-        private var edgeOffsetXExpandedSet : Boolean = false
-        private var edgeOffsetYExpandedSet : Boolean = false
+        internal var shadowDySet : Boolean = false
+        internal var bubblesMinSizeSet : Boolean = false
+        internal var bubblesMaxSizeSet : Boolean = false
+        internal var edgeOffsetXCollapsed : Int = 0
+        internal var edgeOffsetYCollapsed : Int = 0
+        internal var edgeOffsetXExpanded : Int = 0
+        internal var edgeOffsetYExpanded : Int = 0
+        internal var edgeOffsetXCollapsedSet : Boolean = false
+        internal var edgeOffsetYCollapsedSet : Boolean = false
+        internal var edgeOffsetXExpandedSet : Boolean = false
+        internal var edgeOffsetYExpandedSet : Boolean = false
 
         /**
          * Set dark color (playing state).
@@ -850,217 +794,126 @@ class AudioWidget private constructor(builder : Builder) {
             return this
         }
 
-        /**
-         * Set light color (paused state).
-         * @param lightColor light color
-         */
         fun lightColor(@ColorInt lightColor : Int) : Builder {
             this.lightColor = lightColor
             lightColorSet = true
             return this
         }
 
-        /**
-         * Set progress bar color.
-         * @param progressColor progress bar color
-         */
         fun progressColor(@ColorInt progressColor : Int) : Builder {
             this.progressColor = progressColor
             progressColorSet = true
             return this
         }
 
-        /**
-         * Set remove widget cross color.
-         * @param crossColor cross color
-         */
         fun crossColor(@ColorInt crossColor : Int) : Builder {
             this.crossColor = crossColor
             crossColorSet = true
             return this
         }
 
-        /**
-         * Set remove widget cross color in overlapped state (audio widget overlapped remove widget).
-         * @param crossOverlappedColor cross color in overlapped state
-         */
         fun crossOverlappedColor(@ColorInt crossOverlappedColor : Int) : Builder {
             this.crossOverlappedColor = crossOverlappedColor
             crossOverlappedColorSet = true
             return this
         }
 
-        /**
-         * Set shadow color.
-         * @param shadowColor shadow color
-         */
         fun shadowColor(@ColorInt shadowColor : Int) : Builder {
             this.shadowColor = shadowColor
             shadowColorSet = true
             return this
         }
 
-        /**
-         * Set widget color in expanded state.
-         * @param expandWidgetColor widget color in expanded state
-         */
         fun expandWidgetColor(@ColorInt expandWidgetColor : Int) : Builder {
             this.expandWidgetColor = expandWidgetColor
             expandWidgetColorSet = true
             return this
         }
 
-        /**
-         * Set button padding in pixels. Default value: 10dp.
-         * @param buttonPadding button padding
-         */
         fun buttonPadding(buttonPadding : Int) : Builder {
             this.buttonPadding = buttonPadding
             buttonPaddingSet = true
             return this
         }
 
-        /**
-         * Set stroke width of remove widget. Default value: 4dp.
-         * @param crossStrokeWidth stroke width of remove widget
-         */
         fun crossStrokeWidth(crossStrokeWidth : Float) : Builder {
             this.crossStrokeWidth = crossStrokeWidth
             crossStrokeWidthSet = true
             return this
         }
 
-        /**
-         * Set stroke width of progress bar. Default value: 4dp.
-         * @param progressStrokeWidth stroke width of progress bar
-         */
         fun progressStrokeWidth(progressStrokeWidth : Float) : Builder {
             this.progressStrokeWidth = progressStrokeWidth
             progressStrokeWidthSet = true
             return this
         }
 
-        /**
-         * Set shadow radius. Default value: 5dp.
-         * @param shadowRadius shadow radius.
-         * @see Paint.setShadowLayer
-         */
         fun shadowRadius(shadowRadius : Float) : Builder {
             this.shadowRadius = shadowRadius
             shadowRadiusSet = true
             return this
         }
 
-        /**
-         * Set shadow dx. Default value: 1dp.
-         * @param shadowDx shadow dx
-         * @see Paint.setShadowLayer
-         */
         fun shadowDx(shadowDx : Float) : Builder {
             this.shadowDx = shadowDx
             shadowDxSet = true
             return this
         }
 
-        /**
-         * Set shadow dx. Default value: 1dp.
-         * @param shadowDy shadow dy
-         * @see Paint.setShadowLayer
-         */
         fun shadowDy(shadowDy : Float) : Builder {
             this.shadowDy = shadowDy
             shadowDySet = true
             return this
         }
 
-        /**
-         * Set bubbles minimum size in pixels. Default value: 5dp.
-         * @param bubblesMinSize bubbles minimum size
-         */
         fun bubblesMinSize(bubblesMinSize : Float) : Builder {
             this.bubblesMinSize = bubblesMinSize
             bubblesMinSizeSet = true
             return this
         }
 
-        /**
-         * Set bubbles maximum size in pixels. Default value: 10dp.
-         * @param bubblesMaxSize bubbles maximum size
-         */
         fun bubblesMaxSize(bubblesMaxSize : Float) : Builder {
             this.bubblesMaxSize = bubblesMaxSize
             bubblesMaxSizeSet = true
             return this
         }
 
-        /**
-         * Set drawable for play button.
-         * @param playDrawable drawable for play button
-         */
         fun playDrawable(playDrawable : Drawable) : Builder {
             this.playDrawable = playDrawable
             return this
         }
 
-        /**
-         * Set drawable for previous track button.
-         * @param prevDrawable drawable for previous track button
-         */
         fun prevTrackDrawale(prevDrawable : Drawable) : Builder {
             this.prevDrawable = prevDrawable
             return this
         }
 
-        /**
-         * Set drawable for next track button.
-         * @param nextDrawable drawable for next track button.
-         */
         fun nextTrackDrawable(nextDrawable : Drawable) : Builder {
             this.nextDrawable = nextDrawable
             return this
         }
 
-        /**
-         * Set drawable for playlist button.
-         * @param playlistDrawable drawable for playlist button
-         */
         fun playlistDrawable(playlistDrawable : Drawable) : Builder {
             this.playlistDrawable = playlistDrawable
             return this
         }
 
-        /**
-         * Set drawable for default album icon.
-         * @param defaultAlbumCover drawable for default album icon
-         */
         fun defaultAlbumDrawable(defaultAlbumCover : Drawable) : Builder {
             this.defaultAlbumDrawable = defaultAlbumCover
             return this
         }
 
-        /**
-         * Set drawable for pause button.
-         * @param pauseDrawable drawable for pause button
-         */
         fun pauseDrawable(pauseDrawable : Drawable) : Builder {
             this.pauseDrawable = pauseDrawable
             return this
         }
 
-        /**
-         * Set widget edge offset on X axis
-         * @param edgeOffsetX widget edge offset on X axis
-         */
         fun edgeOffsetXCollapsed(edgeOffsetX : Int) : Builder {
             this.edgeOffsetXCollapsed = edgeOffsetX
             edgeOffsetXCollapsedSet = true
             return this
         }
 
-        /**
-         * Set widget edge offset on Y axis
-         * @param edgeOffsetY widget edge offset on Y axis
-         */
         fun edgeOffsetYCollapsed(edgeOffsetY : Int) : Builder {
             this.edgeOffsetYCollapsed = edgeOffsetY
             edgeOffsetYCollapsedSet = true
@@ -1079,11 +932,6 @@ class AudioWidget private constructor(builder : Builder) {
             return this
         }
 
-        /**
-         * Create new audio widget.
-         * @return new audio widget
-         * @throws IllegalStateException if size parameters have wrong values (less than zero).
-         */
         fun build() : AudioWidget {
             if (buttonPaddingSet) {
                 checkOrThrow(buttonPadding , "Button padding")
@@ -1127,165 +975,61 @@ class AudioWidget private constructor(builder : Builder) {
 
     }
 
-    /**
-     * Audio widget controller.
-     */
     interface Controller {
 
-        /**
-         * Start playback.
-         */
         fun start()
 
-        /**
-         * Pause playback.
-         */
         fun pause()
 
-        /**
-         * Stop playback.
-         */
         fun stop()
 
-        /**
-         * Get track duration.
-         *
-         * @return track duration
-         */
         fun duration() : Int
 
-        /**
-         * Set track duration.
-         *
-         * @param duration track duration
-         */
         fun duration(duration : Int)
 
-        /**
-         * Get track position.
-         *
-         * @return track position
-         */
         fun position() : Int
 
-        /**
-         * Set track position.
-         *
-         * @param position track position
-         */
         fun position(position : Int)
 
-        /**
-         * Set controls click listener.
-         *
-         * @param onControlsClickListener controls click listener
-         */
         fun onControlsClickListener(onControlsClickListener : OnControlsClickListener?)
 
-        /**
-         * Set widget state change listener.
-         *
-         * @param onWidgetStateChangedListener widget state change listener
-         */
         fun onWidgetStateChangedListener(onWidgetStateChangedListener : OnWidgetStateChangedListener?)
 
-        /**
-         * Set album cover.
-         *
-         * @param albumCover album cover or null to set default one
-         */
         fun albumCover(albumCover : Drawable?)
 
-        /**
-         * Set album cover.
-         *
-         * @param albumCover album cover or null to set default one
-         */
         fun albumCoverBitmap(albumCover : Bitmap?)
     }
 
-    /**
-     * Listener for control clicks.
-     */
     interface OnControlsClickListener {
 
-        /**
-         * Called when playlist button clicked.
-         * @return true if you consume the action, false to use default behavior (collapse widget)
-         */
         fun onPlaylistClicked() : Boolean
 
-        /**
-         * Called when playlist button long clicked.
-         */
         fun onPlaylistLongClicked()
 
-        /**
-         * Called when previous track button clicked.
-         */
         fun onPreviousClicked()
 
-        /**
-         * Called when previous track button long clicked.
-         */
         fun onPreviousLongClicked()
 
-        /**
-         * Called when play/pause button clicked.
-         * @return true if you consume the action, false to use default behavior (change play/pause state)
-         */
         fun onPlayPauseClicked() : Boolean
 
-        /**
-         * Called when play/pause button long clicked.
-         */
         fun onPlayPauseLongClicked()
 
-        /**
-         * Called when next track button clicked.
-         */
         fun onNextClicked()
 
-        /**
-         * Called when next track button long clicked.
-         */
         fun onNextLongClicked()
 
-        /**
-         * Called when album icon clicked.
-         */
         fun onAlbumClicked()
 
-        /**
-         * Called when album icon long clicked.
-         */
         fun onAlbumLongClicked()
     }
 
-    /**
-     * Listener for widget state changes.
-     */
     interface OnWidgetStateChangedListener {
 
-        /**
-         * Called when widget state changed.
-         *
-         * @param state new widget state
-         */
         fun onWidgetStateChanged(state : State)
 
-        /**
-         * Called when position of widget is changed.
-         *
-         * @param cx center x
-         * @param cy center y
-         */
         fun onWidgetPositionChanged(cx : Int , cy : Int)
     }
 
-    /**
-     * Widget state.
-     */
     enum class State {
         COLLAPSED ,
         EXPANDED ,

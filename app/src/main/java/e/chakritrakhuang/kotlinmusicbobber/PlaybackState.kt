@@ -99,5 +99,7 @@ internal class PlaybackState {
          * @param percentage value equals to `position / duration`
          */
         fun onProgressChanged(position : Int , duration : Int , percentage : Float)
+
+        fun setAlpha(it : Nothing?) : Any
     }
 }

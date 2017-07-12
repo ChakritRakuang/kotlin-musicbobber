@@ -10,7 +10,7 @@ internal abstract class BaseAsyncTaskLoader<T>(context : Context) : AsyncTaskLoa
         if (isReset) {
 
             if (data != null) {
-                onReleaseResources(data)
+                onReleaseResources()
             }
         }
         val oldData = mData
@@ -22,7 +22,7 @@ internal abstract class BaseAsyncTaskLoader<T>(context : Context) : AsyncTaskLoa
         }
 
         if (oldData != null) {
-            onReleaseResources(oldData)
+            onReleaseResources()
         }
     }
 
@@ -46,7 +46,7 @@ internal abstract class BaseAsyncTaskLoader<T>(context : Context) : AsyncTaskLoa
     override fun onCanceled(data : T?) {
         super.onCanceled(data)
 
-        onReleaseResources(data)
+        onReleaseResources()
     }
 
     override fun onReset() {
@@ -55,13 +55,12 @@ internal abstract class BaseAsyncTaskLoader<T>(context : Context) : AsyncTaskLoa
         onStopLoading()
 
         if (mData != null) {
-            onReleaseResources(mData)
+            onReleaseResources()
             mData = null
         }
     }
 
-    protected fun onReleaseResources(apps : T?) {
-        // For a simple List<> there is nothing to do.  For something
-        // like a Cursor, we would close it here.
+    protected fun onReleaseResources() {
+
     }
 }
